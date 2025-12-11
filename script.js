@@ -1,213 +1,237 @@
 window.addEventListener("DOMContentLoaded", () => {
-  gsap.registerPlugin(ScrollTrigger, SplitText);
+  gsap.registerPlugin(ScrollTrigger, SplitText, ScrambleTextPlugin);
 
-  const heroTitleContainer = document.querySelector(".hero-title-container ");
-  const HeroTitle = new SplitText(".hero-title", { type: "chars" });
-  const headerTitle = new SplitText(".header-title", { type: "words"  });
-
-  const rlt = gsap.timeline({
-     scrollTrigger: {
-            trigger: ".hero-sub-title", 
-            start: "top 80%",
-            end: "+=100",
-            toggleActions: "play reverse play reverse",
-            markers: true
-        } 
-  })
- rlt.to(headerTitle.words,{
-        x: 0,
-        opacity:1,
-        stagger: 0.04,
-        });
-
-  const descriptionDetailsSection = new SplitText(
-    ".description-details-section",
-    { type: "lines, words" }
+  const heroMainTextArray = gsap.utils.toArray(".hero-main-text");
+  const videoSection2Item = gsap.utils.toArray(
+    ".video-section-2-item:not(:first-child)"
   );
 
-  const cursor = document.querySelector(".custom-cursor");
-  const cursorDot = document.querySelector(".cursor-dot");
-
-  const cursorText = document.querySelector(".cursor-text");
-
-  let mouseX = 0;
-  let mouseY = 0;
-  let cursorX = 0;
-  let cursorY = 0;
-
-  document.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smooth: true,
+    direction: "vertical",
+    gestureDirection: "vertical",
+    smoothTouch: false,
+    touchMultiplier: 2,
+    infinite: false,
   });
 
-  gsap.ticker.add(() => {
-    const speed = 0.2;
-    cursorX += (mouseX - cursorX) * speed;
-    cursorY += (mouseY - cursorY) * speed;
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
 
-    gsap.set(cursor, {
-      x: cursorX - cursor.offsetWidth / 2,
-      y: cursorY - cursor.offsetHeight / 2,
-    });
-  });
+  requestAnimationFrame(raf);
 
-  const hoverElements = document.querySelectorAll("a, button, .project");
+  const scrambleTextAnimate = gsap.utils.toArray([
+    ".t-r",
+    ".t-c",
+    ".t-l",
+    ".t-b",
+    ".t-t",
+  ]);
 
-  hoverElements.forEach((el) => {
-    el.addEventListener("mouseenter", () => {
-      cursor.classList.add("hover");
-    });
-
-    el.addEventListener("mouseleave", () => {
-      cursor.classList.remove("hover");
-    });
-
-    el.addEventListener("mousedown", () => {
-      cursor.classList.add("click");
-    });
-
-    el.addEventListener("mouseup", () => {
-      cursor.classList.remove("click");
+  heroMainTextArray.forEach((element, index) => {
+    gsap.set(element, {
+      y: 400,
     });
   });
 
-  document.addEventListener("mouseleave", () => {
-    gsap.to(cursorDot, { opacity: 0, duration: 0.2 });
+  gsap.set(".hero-main-container", {
+    overflow: "hidden",
   });
 
-  document.addEventListener("mouseenter", () => {
-    gsap.to(cursorDot, { opacity: 1, duration: 0.2 });
+  gsap.set([".card-inside-r-letter", ".card-inside-e-letter"], {
+    opacity: "0",
+    clipPath: `polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%)`,
   });
 
-  const progressBar = document.querySelector(".progress-bar");
-  const projectsList = document.querySelector(".projects-list");
-
-  const contactMirror = document.querySelector(".some-images");
-
-  const projects = document.querySelectorAll(".project");
-
-  projects.forEach((project) => {
-    project.addEventListener("mouseenter", () => {
-      cursor.classList.add("view");
-      cursorText.textContent = "VIEW";
-    });
-
-    project.addEventListener("mouseleave", () => {
-      cursor.classList.remove("view");
-      cursorText.textContent = "";
-    });
-  });
-
-  const projectCounter = document.querySelector(".project-counter");
-  const heroSubTitle = gsap.utils.toArray(".hero-sub-title");
-
-  const horizontalSection = projectsList.parentElement;
-
-  window.addEventListener("load", () => {
-    ScrollTrigger.refresh();
+  gsap.set([".t-r", ".t-c", ".t-l", ".t-t", ".t-b"], {
+    opacity: 0,
   });
 
   const tl = gsap.timeline();
+  const rltxt = gsap.timeline();
 
-  tl.to(heroTitleContainer, {
-    delay: 1,
-    clipPath: `polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)`,
+  lenis.stop();
+
+  tl.to(".hero-main-container", {
+    opacity: 1,
   })
-    .to(HeroTitle.chars, {
-      y: 0,
-      ease: "power4.out",
-      stagger: {
-        amount: 0.6,
-      },
-    })
-    .to(heroSubTitle, {
+    .to([".t-r", ".t-l", ".t-b", ".t-t"], {
+      delay: 0.6,
       opacity: 1,
-      duration: 0.4,
-      stagger: 0.2,
-    });
-
-  gsap.to(descriptionDetailsSection.words, {
-    y: 0,
-    duration: 0.6,
-    opacity: 1,
-    ease: "power4.out",
-    stagger: 0.01,
-    scrollTrigger: {
-      trigger: ".role",
-      start: "top center",
-      end: "end botton",
-
-      toggleActions: "play none none reverse",
-      //   markers: true,
-    },
-  });
-
-  gsap.to(".description-details-2", {
-    delay: 1,
-    duration: 0.4,
-    opacity: 1,
-    scrollTrigger: {
-      trigger: ".description-details-2",
-      start: "top center",
-      end: "end botton",
-      //   markers: true,
-      toggleActions: "play none none reverse",
-    },
-  });
-
-  const sh = gsap.timeline({
-    defaults: { ease: "none" },
-    scrollTrigger: {
-      trigger: horizontalSection,
-      start: "top top",
-      end: () =>
-        `+=${
-          projectsList.scrollWidth -
-          horizontalSection.offsetWidth +
-          window.innerHeight
-        }`,
-      pin: true,
-      scrub: 1,
-      // markers: true,
-      invalidateOnRefresh: true,
-      anticipatePin: 1,
-      pinSpacing: true,
-      onUpdate: (self) => {
-        gsap.to(progressBar, {
-          width: `${100 * self.progress}%`,
-          duration: 0.1,
-          ease: "none",
+      mixBlendMode: "difference",
+    })
+    .to(heroMainTextArray, {
+      delay: 0.3,
+      y: 0,
+      duration: 0.6,
+      ease: "power2.inOut",
+      stagger: {
+        amount: 0.2,
+      },
+      onComplete: () => {
+        gsap.set(".hero-main-container", {
+          overflow: "auto",
+          width: "100%",
+          height: "100%",
         });
 
+        gsap.set(".hero-main-container", {
+          overflow: "hidden",
+        });
+      },
+    })
+    .to(
+      [
+        ".hero-main-text:nth-child(1)",
+        ".hero-main-text:nth-child(2)",
+        ".hero-main-text:nth-child(3)",
+      ],
+      {
+        top: "-30%",
+        stagger: {
+          amount: 0.2,
+        },
+      }
+    )
+    .to(
+      [
+        ".hero-main-text:nth-child(4)",
+        ".hero-main-text:nth-child(5)",
+        ".hero-main-text:nth-child(6)",
+      ],
+      {
+        top: "24.50%",
+        stagger: {
+          amount: 0.2,
+        },
+      },
+      "<"
+    )
+
+    .to([".hero-main-text:nth-child(1)", ".hero-main-text:nth-child(2)"], {
+      xPercent: (index) => -240 * (index / 5.5 + 1),
+      stagger: {
+        amount: 0.02,
+      },
+    })
+
+    .to(
+      [".hero-main-text:nth-child(3)"],
+      {
+        xPercent: 300,
+      },
+      "<"
+    )
+
+    .to(
+      [".hero-main-text:nth-child(4)"],
+      {
+        xPercent: -500,
+      },
+      "<"
+    )
+    .to(
+      [".hero-main-text:nth-child(5)"],
+      {
+        xPercent: -120,
+      },
+      "<"
+    )
+    .to(
+      ".card-inside-r-letter",
+      {
+        opacity: 1,
+        clipPath: `polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)`,
+      },
+      "<"
+    )
+    .to(
+      ".card-inside-e-letter",
+      {
+        opacity: 1,
+        clipPath: `polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)`,
+      },
+      "<"
+    )
+    .to(".t-c", {
+      opacity: 1,
+      onComplete: () => {
+        scrambleTextAnimate.forEach((element, index) => {
+          const originalText = element.textContent;
+
+          function createShiftedVersions(text, count = 10) {
+            let result = "";
+            for (let i = 0; i < count; i++) {
+              const shifted =
+                text.slice(i % text.length) + text.slice(0, i % text.length);
+              result += shifted;
+            }
+            return result;
+          }
+
+          const shiftedChars = createShiftedVersions(originalText);
+
+          gsap.to(element, {
+            scrambleText: {
+              text: originalText,
+              chars: shiftedChars,
+              revealDelay: 0.2,
+              speed: 0.4,
+            },
+            delay: index * 0.4,
+          });
+        });
+
+        lenis.start();
+      },
+    });
+
+  let previousIndex = 0;
+  const titleVideo = document.querySelector(".title-video");
+  const tabItemsTitleVideo = ["Rodeo", "Checkhrah", "Shadow", "Vaggah"];
+
+  const rl = gsap.timeline({
+    scrollTrigger: {
+      trigger: ".video-section-2",
+      start: "top top",
+      end: "+=2000",
+      scrub: 1,
+      pin: true,
+      onUpdate: (self) => {
         const currentProject = Math.min(
-          Math.ceil(self.progress * projects.length),
-          projects.length
+          Math.floor(self.progress * videoSection2Item.length),
+          videoSection2Item.length - 1
         );
-        const activeProject = currentProject === 0 ? 1 : currentProject;
-        projectCounter.textContent = `[${activeProject}/${projects.length}]`;
+
+        if (currentProject !== previousIndex) {
+          previousIndex = currentProject;
+
+          gsap.to(titleVideo, {
+            scrambleText: {
+              text: tabItemsTitleVideo[currentProject],
+              speed: 0.3,
+              duration: 0.2,
+            },
+          });
+        }
       },
     },
   });
 
-  sh.to(projectsList, {
-    x: () => -(projectsList.scrollWidth - window.innerWidth),
-    ease: "none",
-  });
-
-  const cmt = gsap.timeline({
-    scrollTrigger: {
-      trigger: ".contact-mirror",
-      pin: true,
-      scrub: true,
-      // markers: true,
-      end: "+=700vw",
-    },
-  });
-
-  cmt.to(".some-images > img", {
-    yPercent: `40px`,
-    clipPath: ` polygon(0% 0%, 100% 0%, 100% 90%, 0% 90%)`,
-    duration: 0.4,
-    stagger: 0.05,
+  videoSection2Item.forEach((item) => {
+    rl.fromTo(
+      item,
+      {
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 0, 0% 0%)",
+      },
+      {
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+        duration: 1,
+      }
+    );
   });
 });
